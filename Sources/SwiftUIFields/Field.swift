@@ -68,8 +68,6 @@ struct CustomFieldRow_Previews: PreviewProvider {
                                                  "Must be positive"))
             Field(value: .constant(123.45),
                   caption: "Double:")
-            Field(value: .constant(123.45),
-                  subcaption: "no constraint")
          }
          Field(value: .constant(123.45))
       }

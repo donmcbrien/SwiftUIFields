@@ -1,13 +1,16 @@
 # SwiftUIFields
 
+<img src="ScreenShot.png"/>
+
+## Components
 SwiftUIFields provides two customised views to assist in collecting typed and validated data in a user interface for both macOS and iOS apps. They are intended as more flexible substitutes for the less functional TextField() which handles only String values.
 
 The Views are:
 
-    Field(value: Binding,
+    Field(value: Binding<T>,
           caption: String = "",
           subcaption: String = "",
-          validator: FieldValidator? = nil) -> Field
+          validator: FieldValidator<T>? = nil) -> Field
 
 and
 
@@ -20,24 +23,62 @@ and
 
 Most parameters have default values making usage very simple.
 
-A Field() presents a "textfieldlike" control which can collect any datatype which conforms to FieldsProtocol with an optional caption, subcaption and validation closure.
+A Field() presents a "textfield-like" control which can collect any datatype which conforms to FieldsProtocol with an optional caption, subcaption and validation closure. If valid data is committed (i.e. <enter> pressed) it is propagated to the source of truth. If invalid data is committed, the field reverts to its original value. 
 
-A FieldsButton() presents a sheet of "textfieldlike" controls which can collect an array of any datatype which conforms to FieldsProtocol with an optional caption, subcaption, buttonimage and both field and collection-wide validation closures.
+NB: In iOS, if the field is abandoned (i.e. focus transferred to another control) the field reverts to its original value. In macOS, this case is handled as if <enter> were pressed.
 
-<img src="ScreenShot.png"/>
+A FieldsButton() presents a sheet of "textfield-like" controls which can collect an array of any datatype which conforms to FieldsProtocol with an optional caption, subcaption, buttonimage and both field and collection-wide validation closures. Individual Field()s are treated as described above. The sheet cannot be committed while its contents do not pass sheet validation.
 
-If invalid data is entered, or if data entry is abandoned (by transferring focus to another control) the value reverts to its original value and an error message appears below it if one is specified with the FieldValidator closure.
-
-The FieldProtocol determines what types can be handled by a Field(). The requiredments are minimal: a failable initialised which takes a string which can be interpreted as the value and a method which converts a value to such a String. Extensions which make common types (Int, Double, Float, CGFloat, Range, Closed Range) conform are included in the Package. to FieldProtocol
+The requirements of FieldProtocol are minimal:
 
     public protocol FieldProtocol {
         init?(_ string: String) // already conformed to by most types
         func stringified() -> String
     }
 
-A FieldValidator is a struct which combines a closure with an error message:
+1) a failable initialiser which takes a string and turns it into a valid instance of the type or fails and
+2) a method which turns a valid instance of the type into a string.
+Extensions which make common types (Int, Double, Float, CGFloat, Range, Closed Range) conform are included in the Package.
+
+
+FieldValidator and SheetValidator are structs which combines a closure with an error message:
 
     FieldValidator(validator: (T) -> Bool,
                    errorMessage: String) -> FieldValidator
 
-The closure takes a value and returns true (valid) or false (invalid).
+    SheetValidator(validator: ([T]) -> Bool,
+                   errorMessage: String) -> SheetValidator
+
+The closure takes a value and returns true (i.e. valid) or false (i.e. invalid).
+
+## Usage
+Assuming an ObservableObject called viewModel with properties name:String, age:Int, salary:Double and childrensAges:[Int], the following code will produce the device screen displayed:
+
+    VStack(alignment: .trailing) {
+       Field(value: $viewModel.string,
+             caption: "Name",
+             fieldValidator: FieldValidator({ str in (str.count > 3) },
+                                        "Must have > 3 characters"))
+       Field(value: $viewModel.number,
+             caption: "Salary")
+       Field(value: $viewModel.integer,
+             caption: "Age",
+             subcaption: "(Negative)",
+             fieldValidator: FieldValidator({ v in v > 21 },
+                                            "Must exceed 21") )
+       FieldsButton(values: $viewModel.intArray,
+                    caption: "Children's Ages",
+                    imageName: "rectangle.split.3x3.fill",
+                    fieldValidator: FieldValidator({ v in v < 18 },
+                                                   "Must be under 18"))
+    }
+
+
+## Installation
+Add this Swift package in Xcode using its Github repository url. (File > Swift Packages > Add Package Dependency ...)
+
+## Author
+Don McBrien - email: don.mcbrien@icloud.com
+
+## License
+SwiftUICharts is provided subject to the license. See the LICENSE file.

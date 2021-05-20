@@ -14,7 +14,11 @@ import SwiftUI
 // to an instance of the struct. (Note that they are usually very easy to implement)
 
 public protocol FieldsProtocol: Equatable {
-   init?(_ string: String) // already conformed to by most types
+   // A failable initialiser which takes a string and turns it into
+   // a valid instance or fails. Many types already have this method
+   init?(_ string: String)
+   
+   // A method which turns a valid instance into a string.
    func stringified() -> String
 }
 
