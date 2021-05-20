@@ -23,7 +23,7 @@ public struct FieldsButton<T: FieldsProtocol>: View {
    @State private var isPresented: Bool = false
 
    // all public structs need a public init - pity
-   public init(values: Binding<[T]>, caption: String = "", subcaption: String = "", imageName: String, fieldValidator: FieldValidator<T>? = nil, sheetValidator: SheetValidator<T>? = nil) {
+   public init(values: Binding<[T]>, caption: String = "", subcaption: String = "", imageName: String = "list.bullet.rectangle", fieldValidator: FieldValidator<T>? = nil, sheetValidator: SheetValidator<T>? = nil) {
       self._values = values
       self.caption = caption
       self.subcaption = subcaption
